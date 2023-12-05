@@ -1,3 +1,4 @@
+import random
 import json
 import os
 from difflib import get_close_matches
@@ -20,9 +21,26 @@ def find_best_match(user_question: str, questions: list[str]) -> str | None:
     return matches[0] if matches else None
 
 def get_answer_for_question(question: str, knowledge_base: dict) -> str | None:
-    for q in knowledge_base['questions']:
-        if q['question'] == question:
-            return q['answer']
+    matching_questions = [q for q in knowledge_base['questions'] if q['question'] == question]
+    if matching_questions:
+        return random.choice(matching_questions[0]['answer']) if matching_questions[0]['answer'] else None
+
+def learn_new_word(knowledge_base, user_input):
+    existing_question = next((q for q in knowledge_base["questions"] if q["question"] == user_input), None)
+    new_answers: list = input('Type the answers separated by commas "," or "skip" to skip: ').split(',')
+    if new_answers[0].lower() == 'skip':
+        print('Skipped adding new response.')
+        return
+    new_answers = [a.strip() for a in new_answers]
+    if existing_question:
+        print("Bot: I know This question already but I have been learned a new answers.")
+        existing_answers_set = set(existing_question["answer"])
+        existing_question["answer"].extend([a for a in new_answers if a not in existing_answers_set])
+    else:
+        print('Bot: Thank You! I learned a new question and response\nIf you want to teach me more, Send "teach"')
+        knowledge_base["questions"].append({"question": user_input, "answer": new_answers})
+    save_knowledge_base('knowledge_base.json', knowledge_base)
+
 
 def chat_bot():
     knowledge_base: dict = load_knowledge_base('knowledge_base.json')
@@ -32,17 +50,16 @@ def chat_bot():
             break
         questions = [q['question'] for q in knowledge_base['questions']]
         best_match: str | None = find_best_match(user_input, questions)
-
-        if best_match:
+        if user_input.lower() == 'teach':
+            print("Bot: okay let's learning, Tell me the question!")
+            user_input = input("You: ")
+            learn_new_word(knowledge_base,user_input)
+        elif not best_match :
+            print("Bot: I don't know the answer, Please teach me :)")
+            learn_new_word(knowledge_base,user_input)
+        else:
             answer: str = get_answer_for_question(best_match, knowledge_base)
             print(f'Bot: {answer}')
-        else:
-            print("Bot: I don't know the answer, Please teach me :)")
-            new_answer: str = input('Type the answer or "skip" to skip: ')
-            if new_answer.lower() != 'skip':
-                knowledge_base["questions"].append({"question": user_input, "answer": new_answer})
-                save_knowledge_base('knowledge_base.json', knowledge_base)
-                print('Thank You, I learned a new Response!')
 
 if __name__ == "__main__":
     chat_bot()
