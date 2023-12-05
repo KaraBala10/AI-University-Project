@@ -2,7 +2,7 @@ import random
 import json
 import os
 from difflib import get_close_matches
-
+from game import tictactoe
 def load_knowledge_base(file_path: str) -> dict:
     if os.path.exists(file_path):
         with open(file_path, 'r') as file:
@@ -44,6 +44,7 @@ def learn_new_word(knowledge_base, user_input):
 
 def chat_bot():
     knowledge_base: dict = load_knowledge_base('knowledge_base.json')
+    print("Hello, I'm AI chat, if you want play with send 'play', if you want teach me send 'teach' in any time you want")
     while True:
         user_input: str = input('You: ')
         if user_input.lower() == 'quit':
@@ -54,6 +55,8 @@ def chat_bot():
             print("Bot: okay let's learning, Tell me the question!")
             user_input = input("You: ")
             learn_new_word(knowledge_base,user_input)
+        if user_input.lower() == 'play':
+            tictactoe()
         elif not best_match :
             print("Bot: I don't know the answer, Please teach me :)")
             learn_new_word(knowledge_base,user_input)
