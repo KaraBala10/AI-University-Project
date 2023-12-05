@@ -44,10 +44,11 @@ def learn_new_word(knowledge_base, user_input):
 
 def chat_bot():
     knowledge_base: dict = load_knowledge_base('knowledge_base.json')
-    print("Hello, I'm AI chat, if you want play with send 'play', if you want teach me send 'teach' in any time you want")
+    print("Bot: Hello, I'm AI chat, if you want play with send 'play', if you want teach me send 'teach' in any time you want")
     while True:
         user_input: str = input('You: ')
         if user_input.lower() == 'quit':
+            print('Bot: Goodbye!')
             break
         questions = [q['question'] for q in knowledge_base['questions']]
         best_match: str | None = find_best_match(user_input, questions)
