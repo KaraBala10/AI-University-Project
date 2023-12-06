@@ -27,8 +27,8 @@ def get_answer_for_question(question: str, knowledge_base: dict) -> str | None:
 
 def learn_new_word(knowledge_base, user_input):
     existing_question = next((q for q in knowledge_base["questions"] if q["question"] == user_input), None)
-    new_answers: list = input('Type the answers separated by commas "," or "skip" to skip: ').split(',')
-    if new_answers[0].lower() == 'skip':
+    new_answers: list = input('Type the answers separated by commas "," or "skip" to skip: ').strip().split(',')
+    if new_answers[0].lower().strip() == 'skip':
         print('Skipped adding new response.')
         return
     new_answers = [a.strip() for a in new_answers]
@@ -47,16 +47,19 @@ def chat_bot():
     print("Bot: Hello, I'm AI chat, if you want play with send 'play', if you want teach me send 'teach' in any time you want")
     while True:
         user_input: str = input('You: ')
-        if user_input.lower() == 'quit':
+        if user_input.lower().strip() == 'quit':
             print('Bot: Goodbye!')
             break
+        if user_input.lower().strip() == '':
+            print("Bot: Don't send empty message :)")
+            continue
         questions = [q['question'] for q in knowledge_base['questions']]
         best_match: str | None = find_best_match(user_input, questions)
-        if user_input.lower() == 'teach':
+        if user_input.lower().strip() == 'teach':
             print("Bot: okay let's learning, Tell me the question!")
-            user_input = input("You: ")
+            user_input = input("You: ").lower().strip()
             learn_new_word(knowledge_base,user_input)
-        if user_input.lower() == 'play':
+        if user_input.lower().strip() == 'play':
             tictactoe()
         elif not best_match :
             print("Bot: I don't know the answer, Please teach me :)")
