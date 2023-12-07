@@ -4,6 +4,12 @@ import os
 from difflib import get_close_matches
 from game import tictactoe
 
+BLUE_COLOR = "\033[96m"
+YELLOW_COLOR = "\033[93m"
+GREEN_COLOR = "\033[92m"
+RED_COLOR = "\033[91m"
+RESET_COLOR = "\033[0m"
+
 def load_knowledge_base(file_path: str) -> dict:
     data = {"questions": []}
     if os.path.exists(file_path):
@@ -37,17 +43,17 @@ def learn_new_word(knowledge_base: dict, user_input: str):
         (q for q in knowledge_base["questions"] if q["question"] == user_input), None
     )
     new_answers: list = (
-        input('Type the answers separated by commas "," or "skip" to skip: ')
+        input(f'{YELLOW_COLOR}Type the answers separated by commas "," or "skip" to skip: {RESET_COLOR}')
         .strip()
         .split(",")
     )
     if new_answers[0].lower().strip() == "skip":
-        print("Skipped adding new response.")
+        print(f"{YELLOW_COLOR}Skipped adding new response.{RESET_COLOR}")
         return
     new_answers = [a.strip() for a in new_answers]
     if existing_question:
         print(
-            "Bot: I know this question already, but I have learned new answers."
+            f"{BLUE_COLOR }Bot:{RESET_COLOR} I know this question already, but I have learned new answers."
         )
         existing_answers_set = set(existing_question["answer"])
         existing_question["answer"].extend(
@@ -55,7 +61,7 @@ def learn_new_word(knowledge_base: dict, user_input: str):
         )
     else:
         print(
-            'Bot: Thank you! I learned a new question and response.\nIf you want to teach me more, send "teach".'
+            f'{BLUE_COLOR}Bot:{RESET_COLOR} Thank you! I learned a new question and response.'
         )
         knowledge_base["questions"].append(
             {"question": user_input, "answer": new_answers}
@@ -65,30 +71,30 @@ def learn_new_word(knowledge_base: dict, user_input: str):
 def chat_bot():
     knowledge_base: dict = load_knowledge_base("knowledge_base.json")
     print(
-        "Bot: Hello, I'm an AI chat. If you want to play with me, send 'play'. If you want to teach me, send 'teach' at any time."
+        f'{BLUE_COLOR}Bot:{RESET_COLOR} Hello, I\'m an AI chat. If you want to play with me, send \'play\'. If you want to teach me, send \'teach\' at any time.'
     )
     while True:
-        user_input: str = input("You: ").lower().strip()
+        user_input: str = input(f"{GREEN_COLOR}You: {RESET_COLOR}").lower().strip()
         if user_input == "quit":
-            print("Bot: Goodbye!")
+            print(f"{BLUE_COLOR}Bot:{RESET_COLOR} Goodbye!")
             break
         if user_input == "":
-            print("Bot: Don't send an empty message :)")
+            print(f"{RED_COLOR}Don't send an empty message {RESET_COLOR}")
             continue
         questions = [q["question"] for q in knowledge_base["questions"]]
         best_match: str | None = find_best_match(user_input, questions)
         if user_input == "teach":
-            print("Bot: Okay, let's learn. Tell me the question!")
-            user_input: str = input("You: ").lower().strip()
+            print(f"{BLUE_COLOR}Bot:{RESET_COLOR} Okay, let's learn. Tell me the question!")
+            user_input: str = input(f"{GREEN_COLOR}You: {RESET_COLOR}").lower().strip()
             learn_new_word(knowledge_base, user_input)
-        if user_input == "play":
+        elif user_input == "play":
             tictactoe()
         elif not best_match:
-            print("Bot: I don't know the answer. Please teach me :)")
+            print(f"{BLUE_COLOR}Bot:{RESET_COLOR} I don't know the answer. Please teach me :)")
             learn_new_word(knowledge_base, user_input)
         else:
             answer: str = get_answer_for_question(best_match, knowledge_base)
-            print(f"Bot: {answer}")
+            print(f"{BLUE_COLOR}Bot:{RESET_COLOR} {answer}")
 
 if __name__ == "__main__":
     chat_bot()
