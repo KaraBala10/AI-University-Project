@@ -45,7 +45,6 @@ def learn_new_word(knowledge_base: dict, user_input: str):
             break
     new_answers: list = (
         input(f'{YELLOW_COLOR}Type the answers separated by commas "," or "skip" to skip: {RESET_COLOR}')
-        .strip()
         .split(",")
     )
     if new_answers[0].lower().strip() == "skip":
